@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+	<title>WS Video Player</title>
+  <link rel="stylesheet" href="./dist/common.css">
+  <link rel="stylesheet" href="./dist/video.css">
+</head>
+
+<body>
+  <div class="main">
+    <div class="content">
+      <div class="container">
+      	<div id="video-player"></div>
+      </div>
+    </div>
+  </div>
+	<script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+  <script src="./dist/video.js"></script>
+  <script type="text/javascript">
+		var video = new WSVideoPlayer({
+			container: 'video-player',
+			src: 'http://7xj610.com1.z0.glb.clouddn.com/what-most-schools-dont-teach.mp4',
+			poster: 'http://7xj610.com1.z0.glb.clouddn.com/Rectangle-poster.png',
+			autoPlay: false,
+			loop: false,
+			controlDispearTime: -1,
+			stickToTopWhenScroll: true
+		});
+  </script>
+</body>
+</html>
