@@ -20,9 +20,6 @@
     this.video = null;
     this.container = $(`#${options.container}`);
     this.isPlaying = false;
-    this.slideMoveHandler = null;
-    this.slideMoveEndHandler = null;
-    this.slideCurrentTime = null;
     this.init();
   }
 
@@ -164,6 +161,11 @@
 
     }, false);
 
+    this.video.addEventListener('ended', function() {
+      self.isPlaying = false;
+      self.playAndPauseElem.removeClass('is-playing');
+    }, false);
+
     this.playElem.on('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -203,15 +205,16 @@
 
     this.activeProgressbar.on('click', handleProgressClickJump);
     this.progressBar.on('click', handleProgressClickJump);
+    this.progressbarSlider.on('click', handleProgressClickJump);
 
     this.fullScreenElem.on('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       launchFullScreen(self.video)
     });
 
-    self.slideMoveHandler = function (evt) {
+    const slideMoveHandler = function (evt) {
       evt.stopPropagation();
-      //here should pause the video
-      self.video.pause();
       let offset = self.progress.offset();
       let width = self.progress.width();
       let pageX = evt.pageX;
@@ -228,26 +231,17 @@
       let ratio = (diffWidth / width) * 100;
       self.progressbarSlider.css('left', ratio + '%');
       self.activeProgressbar.css('width', ratio + '%');
-      self.slideCurrentTime = (diffWidth / width) * self.video.duration;
-      self.currentTimeElem.text(formatTime(self.slideCurrentTime));
-    }
-
-    self.slideMoveEndHandler = function (evt) {
-      evt.stopPropagation();
-      document.removeEventListener('mousemove', self.slideMoveHandler, false);
-      self.video.currentTime = self.slideCurrentTime;
-      self.slideCurrentTime = null;
-      //if isPlaying should play again
-      if (self.isPlaying) {
-        self.video.play();
-      }
+      let slideCurrentTime = (diffWidth / width) * self.video.duration;
+      self.currentTimeElem.text(formatTime(slideCurrentTime));
+      self.video.currentTime = slideCurrentTime;
     }
 
     this.progressbarSlider.on('mousedown', function (evt) {
-      evt.stopPropagation();
-      evt.preventDefault();
-      document.addEventListener('mousemove', self.slideMoveHandler, false);
-      document.addEventListener('mouseup', self.slideMoveEndHandler, false);
+      document.addEventListener('mousemove', slideMoveHandler, false);
+    });
+
+    $(document).on('mouseup', function(evt) {
+      document.removeEventListener('mousemove', slideMoveHandler, false);
     });
 
   }

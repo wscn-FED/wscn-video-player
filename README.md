@@ -40,7 +40,7 @@ autoPlay: set video autoplay (optional defualt: false)
 
 loop: if loop playing video (optional defaul: false)
 
-controlDispearTime: how long when the controls fadeout (optional default: 2000)
+controlDispearTime: how long when the controls fadeout (optional default: 2000, if set -1 imply not dispear)
 
 stickToTopWhenScroll: when scroll page to overlap video whether stick to top window (optional default: false)
 ```
@@ -49,6 +49,6 @@ stickToTopWhenScroll: when scroll page to overlap video whether stick to top win
 
 `$ npm install`
 
-`$ gulp`
+`$ npm run dev`
 
-`$ gulp build` (for production)
+`$ npm run build` (for production)
