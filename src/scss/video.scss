@@ -28,6 +28,8 @@
   align-items: center;
   background-color: transparent;
   z-index: 1200;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 .ws-video-controls.hide {
   display: none;
@@ -79,12 +81,13 @@
   padding-left: 10px;
   padding-right: 10px;
   font-size: 12px;
+  pointer-events: none;
 }
 .ws-video-progress {
   display: flex;
   flex-grow: 3;
   align-items: center;
-  height: 10px;
+  height: 20px;
   position: relative;
   z-index: 2000;
 }
@@ -92,7 +95,7 @@
   width: 100%;
   position: absolute;
   left: 0;
-  top: 4px;
+  top: 9px;
   height: 2px;
   background-color: #ffffff;
   z-index: 2100;
@@ -101,25 +104,23 @@
 .ws-video-progress-active-bar {
   position: absolute;
   left: 0;
-  top: 3px;
+  top: 8px;
   height: 4px;
   background-color: #0078EB;
   z-index: 2200;
   cursor: pointer;
 }
 .ws-video-progress-slider {
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   top: 0;
   border-radius: 50%;
   background-color: #ffffff;
   position: absolute;
   box-shadow: 0 0 3px #0078EB;
-  // transition: 0.3s;
   z-index: 2300;
   cursor: pointer;
   &:hover {
     box-shadow: 0 0 5px #0078EB;
-    transform: scale(1.5);
   }
 }

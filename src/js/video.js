@@ -22,9 +22,13 @@
     this.isPlaying = false;
     this.init();
   }
+  function checkTouchEventSupported() {
+    return ('ontouchstart' in window) || window.DocumentTouch && (document instanceof DocumentTouch);
+  }
 
-  function isNotTouchEvent(e) {
-    return e.touches.length > 1 || (e.type.toLowerCase() === 'touchedn' && e.touched.length > 0);
+  function pauseEvent(e) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   function formatTime(timestamp) {
@@ -51,6 +55,22 @@
     });
   }
 
+  function getEventPageX(evt) {
+    let pageX;
+    if (/^touch/ig.test(evt.type)) {
+      if (evt.touches && evt.touches.length > 0) {
+        let evtTouch = evt.touches[0];
+        pageX = evtTouch.pageX;
+      }
+    } else {
+      pageX = evt.pageX;
+      if (!pageX) {
+        pageX = evt.clientX + document.body.scrollLeft - document.body.clientLeft;
+      }
+    }
+    return pageX;
+  }
+
   function launchFullScreen(elem) {
     if (!elem.fullscreenElement && // alternative standard method
       !elem.mozFullScreenElement && !elem.webkitFullscreenElement && !elem.msFullscreenElement) {
@@ -62,6 +82,7 @@
   WSVideoPlayer.prototype.init = function () {
     // init templates
     // set video dom element
+    //attach all events
     this.generateTemplate();
     this.attachEvents();
 
@@ -126,6 +147,7 @@
 
   WSVideoPlayer.prototype.attachEvents = function () {
     let self = this;
+    let isTouchEventSupported = checkTouchEventSupported();
     this.video.addEventListener('loadstart', function () {
       console.log('video start loading')
     }, false);
@@ -166,17 +188,54 @@
       self.playAndPauseElem.removeClass('is-playing');
     }, false);
 
-    this.playElem.on('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      self.play();
-    });
+    function handleProgressClickJump(e) {
+      pauseEvent(e);
+      let offset = self.progress.offset();
+      let width = self.progress.width();
+      let pageX = getEventPageX(e);
+      let diffWidth = (pageX - offset.left);
+      self.video.currentTime = (diffWidth / width) * self.video.duration;
+    }
 
-    this.pauseElem.on('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      self.pause();
-    });
+    if (isTouchEventSupported) {
+      this.playElem[0].addEventListener('touchstart', function(e) {
+        pauseEvent(e);
+        self.play();
+      }, false);
+      this.pauseElem[0].addEventListener('touchstart', function(e) {
+        pauseEvent(e);
+        self.pause();
+      }, false);
+
+      this.activeProgressbar[0].addEventListener('touchstart', handleProgressClickJump, false);
+      this.progressBar[0].addEventListener('touchstart', handleProgressClickJump, false);
+      this.progressbarSlider[0].addEventListener('touchstart', handleProgressClickJump, false);
+
+      this.fullScreenElem[0].addEventListener('touchstart', function (e) {
+        pauseEvent(e);
+        launchFullScreen(self.video)
+      }, false);
+
+    } else {
+      this.playElem.on('click', function (e) {
+        pauseEvent(e);
+        self.play();
+      });
+      this.pauseElem.on('click', function (e) {
+        pauseEvent(e);
+        self.pause();
+      });
+
+      this.activeProgressbar.on('click', handleProgressClickJump);
+      this.progressBar.on('click', handleProgressClickJump);
+      this.progressbarSlider.on('click', handleProgressClickJump);
+
+      this.fullScreenElem.on('click', function (e) {
+        pauseEvent(e);
+        launchFullScreen(self.video)
+      });
+
+    }
 
     this.videoConElem.on('mouseleave', function (e) {
       if (self.options.controlDispearTime > 0) {
@@ -190,37 +249,12 @@
       self.videoControlsElem.removeClass('hide');
     });
 
-    function handleProgressClickJump(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      let offset = self.progress.offset();
-      let width = self.progress.width();
-      let pageX = e.pageX;
-      if (!pageX) {
-        pageX = e.clientX + document.body.scrollLeft - document.body.clientLeft;
-      }
-      let diffWidth = (pageX - offset.left);
-      self.video.currentTime = (diffWidth / width) * self.video.duration;
-    }
-
-    this.activeProgressbar.on('click', handleProgressClickJump);
-    this.progressBar.on('click', handleProgressClickJump);
-    this.progressbarSlider.on('click', handleProgressClickJump);
-
-    this.fullScreenElem.on('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      launchFullScreen(self.video)
-    });
-
+    //handle progress slider actions
     const slideMoveHandler = function (evt) {
-      evt.stopPropagation();
+      pauseEvent(evt);
       let offset = self.progress.offset();
       let width = self.progress.width();
-      let pageX = evt.pageX;
-      if (!pageX) {
-        pageX = evt.clientX + document.body.scrollLeft - document.body.clientLeft;
-      }
+      let pageX = getEventPageX(evt);
       let diffWidth = (pageX - offset.left);
       if (diffWidth <= 0) {
         diffWidth = 0
@@ -236,13 +270,24 @@
       self.video.currentTime = slideCurrentTime;
     }
 
-    this.progressbarSlider.on('mousedown', function (evt) {
-      document.addEventListener('mousemove', slideMoveHandler, false);
-    });
-
-    $(document).on('mouseup', function(evt) {
-      document.removeEventListener('mousemove', slideMoveHandler, false);
-    });
+    //add touch events if touch supported
+    if (isTouchEventSupported) {
+      this.progressbarSlider[0].addEventListener('touchstart', function(evt) {
+        evt.preventDefault();
+        document.addEventListener('touchmove', slideMoveHandler, false);
+      });
+      document.addEventListener('touchend', function(evt) {
+        evt.preventDefault();
+        document.removeEventListener('touchmove', slideMoveHandler, false);
+      }, false);
+    } else {
+      this.progressbarSlider.on('mousedown', function (evt) {
+        document.addEventListener('mousemove', slideMoveHandler, false);
+      });
+      document.addEventListener('mouseup', function() {
+        document.removeEventListener('mousemove', slideMoveHandler, false);
+      }, false);
+    }
 
   }
 
