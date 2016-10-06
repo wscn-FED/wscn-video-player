@@ -66,16 +66,16 @@
   background-color: transparent;
 }
 .ws-video-play {
-  background-image: url('../images/play-circle-outline.svg');
+  background-image: svg-load('../images/play-circle-outline.svg');
 }
 .ws-video-pause {
   display: none;
-  background-image: url('../images/pause-circle-outline.svg');
+  background-image: svg-load('../images/pause-circle-outline.svg');
 }
 .ws-video-fullscreen {
   width: 25px;
   height: 25px;
-  background-image: url('../images/fullscreen.svg');
+  background-image: svg-load('../images/fullscreen.svg');
 }
 .ws-video-currenttime, .ws-video-fulltime {
   padding-left: 10px;

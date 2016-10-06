@@ -6,8 +6,24 @@
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 	<title>WS Video Player</title>
-  <link rel="stylesheet" href="./dist/common.css">
-  <link rel="stylesheet" href="./dist/video.css">
+  <style media="screen">
+		html, body {
+			height: 100%;
+		}
+		body {
+			background-color: #f4f4f4;
+			margin: 0;
+			padding: 0;
+			font-family: Open Sans,Helvetica Neue,Helvetica,arial,sans-serif;
+			font-size: 14px;
+			color: #070707;
+		}
+		.container {
+			max-width: 540px;
+			margin: 200px auto;
+			height: 2000px;
+		}
+  </style>
 </head>
 
 <body>
@@ -19,7 +35,7 @@
     </div>
   </div>
 	<script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
-  <script src="./dist/video.js"></script>
+  <script src="./dist/ws-video-player.js"></script>
   <script type="text/javascript">
 		var video = new WSVideoPlayer({
 			container: 'video-player',
