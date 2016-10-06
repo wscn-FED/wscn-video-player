@@ -6,46 +6,52 @@
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 	<title>WS Video Player</title>
-  <style media="screen">
-		html, body {
+	<style media="screen">
+		html,
+		body {
 			height: 100%;
 		}
+		
 		body {
 			background-color: #f4f4f4;
 			margin: 0;
 			padding: 0;
-			font-family: Open Sans,Helvetica Neue,Helvetica,arial,sans-serif;
+			font-family: Open Sans, Helvetica Neue, Helvetica, arial, sans-serif;
 			font-size: 14px;
 			color: #070707;
 		}
+		
 		.container {
 			max-width: 540px;
 			margin: 200px auto;
 			height: 2000px;
 		}
-  </style>
+	</style>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+		crossorigin="anonymous"></script>
+	<script type="text/javascript">
+		$(function() {
+			var video = new WSVideoPlayer({
+				container: 'video-player',
+				src: 'http://7xj610.com1.z0.glb.clouddn.com/what-most-schools-dont-teach.mp4',
+				poster: 'http://7xj610.com1.z0.glb.clouddn.com/Rectangle-poster.png',
+				autoPlay: false,
+				loop: false,
+				controlDispearTime: -1,
+				stickToTopWhenScroll: true
+			});
+		});
+  </script>
 </head>
 
 <body>
-  <div class="main">
-    <div class="content">
-      <div class="container">
-      	<div id="video-player"></div>
-      </div>
-    </div>
-  </div>
-	<script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
-  <script src="./dist/ws-video-player.js"></script>
-  <script type="text/javascript">
-		var video = new WSVideoPlayer({
-			container: 'video-player',
-			src: 'http://7xj610.com1.z0.glb.clouddn.com/what-most-schools-dont-teach.mp4',
-			poster: 'http://7xj610.com1.z0.glb.clouddn.com/Rectangle-poster.png',
-			autoPlay: false,
-			loop: false,
-			controlDispearTime: -1,
-			stickToTopWhenScroll: true
-		});
-  </script>
+	<div class="main">
+		<div class="content">
+			<div class="container">
+				<div id="video-player"></div>
+			</div>
+		</div>
+	</div>
 </body>
+
 </html>

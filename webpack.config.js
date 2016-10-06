@@ -27,6 +27,14 @@ var config = {
     library: 'WSVideoPlayer',
     libraryTarget: 'umd'
   },
+  externals: {
+    "jquery": {
+      root: '$',
+      commonjs2: 'jquery',
+      commonjs: 'jquery',
+      amd: 'jquery'
+    }
+  },
   module: {
     loaders: [
       {
@@ -55,11 +63,6 @@ var config = {
     new HtmlWebpackPlugin({
       template: __dirname + '/index.html'
     }),
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-      "window.jQuery": "jquery"
-    }),
     new OpenBrowserPlugin({url: 'http://localhost:3000'})
   ]
 }
@@ -68,11 +71,6 @@ if (isProduction) {
   config.entry = './src/js/video.js';
   config.output.filename = 'ws-video-player.min.js';
   config.plugins = [
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-      "window.jQuery": "jquery"
-    }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
