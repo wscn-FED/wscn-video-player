@@ -6,12 +6,11 @@
 
 ```html
 <div id="video"></div>
-<link href="./build/ws-video.min.css" rel="stylesheet">
 
 
 
 <script src="jquery.min.js"></script>
-<script src="./build/ws-video.min.js></script>
+<script src="./dist/ws-video-player.min.js></script>
 <script type="text/javascript">
   $(function() {
     var video = new WSVideoPlayer({
