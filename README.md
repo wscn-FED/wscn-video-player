@@ -29,19 +29,19 @@
 ## About options
 
 ```
-container: the container of your video in the html (essential)
+container: video容器（必需）
 
-src: your video source url(mp4) (essential)
+src: video source的链接(必需)
 
-poster: video poster (optional)
+poster: video poster (可选)
 
-autoPlay: set video autoplay (optional defualt: false)
+autoPlay: 自动播放video (可选 默认不自动播放 false)
 
-loop: if loop playing video (optional defaul: false)
+loop: 循环播放视频 (可选 默认不循环 false)
 
-controlDispearTime: how long when the controls fadeout (optional default: 2000, if set -1 imply not dispear)
+controlDispearTime: 视频控制bar隐藏 (可选 默认2秒即 2000, 如果设为负值如-1 不隐藏)
 
-stickToTopWhenScroll: when scroll page to overlap video whether stick to top window (optional default: false)
+stickToTopWhenScroll: 滚动播放视频位置，是否视频固定在左上角(可选 默认false)
 ```
 
 ## Dev
