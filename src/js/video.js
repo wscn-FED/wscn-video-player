@@ -1,4 +1,5 @@
 require('../scss/video.scss');
+require('../scss/font.scss');
 
 function WSVideoPlayer(options) {
   var defaultOptions = {
@@ -113,8 +114,12 @@ WSVideoPlayer.prototype.generateTemplate = function () {
           <div class="ws-video-controls">
               <div class="ws-video-controls-body">
                   <div class="ws-video-play-pause">
-                      <button class="ws-video-play"></button>
-                      <button class="ws-video-pause"></button>
+                      <button class="ws-video-play">
+                        <i class="iconfont">&#xe624;</i>
+                      </button>
+                      <button class="ws-video-pause">
+                        <i class="iconfont">&#xe625;</i>
+                      </button>
                   </div>
                   <span class="ws-video-currenttime">00:00</span>
                   <div class="ws-video-progress">
@@ -123,7 +128,9 @@ WSVideoPlayer.prototype.generateTemplate = function () {
                       <div class="ws-video-progress-active-bar"></div>
                   </div>
                   <span class="ws-video-fulltime">00:00</span>
-                  <button class="ws-video-fullscreen"></button>
+                  <button class="ws-video-fullscreen">
+                    <i class="iconfont">&#xe600;</i>
+                  </button>
               </div>
           </div>
       </div>`;
