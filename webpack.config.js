@@ -56,7 +56,7 @@ var config = {
         inlineSvg(),
         svgo(),
         autoprefixer({
-            browsers: ['last 3 versions']
+            browsers: ['last 2 versions']
         })
     ],
     plugins: [

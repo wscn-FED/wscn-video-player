@@ -43,29 +43,29 @@
   align-items: center;
 }
 .ws-video-play-pause {
-  width: 30px;
-  height: 30px;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 .ws-video-play-pause.is-playing {
   .ws-video-play {
     display: none;
   }
   .ws-video-pause {
-    display: block;
+    display: flex;
   }
 }
 .ws-video-play, .ws-video-pause, .ws-video-fullscreen {
-  outline: none;
-  background-color: transparent;
-  width: 30px;
-  height: 30px;
-  display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  width: 30px;
+  height: 30px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid #1478F0;
   padding: 0;
+  outline: none;
+  background-color: transparent;
 }
 .ws-video-play {
   i {
