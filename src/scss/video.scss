@@ -1,13 +1,14 @@
 .ws-video {
+  overflow: hidden;
+}
+.ws-video-top {
   position: relative;
   width: 100%;
-  overflow: hidden;
   z-index: 1000;
 }
 .ws-video.ws-video-stick-top {
   position: fixed;
   top: 0;
-  left: 0;
   z-index: 200000;
 }
 .ws-video-player {
@@ -128,4 +129,14 @@
   &:hover {
     box-shadow: 0 0 5px #0078EB;
   }
+}
+.ws-video-title {
+  width: 100%;
+  height: 40px;
+  background-color: #1A1B1E;
+  color: #fff;
+  font-size: 15px;
+  line-height: 40px;
+  padding-left: 15px;
+  z-index: 1300;
 }

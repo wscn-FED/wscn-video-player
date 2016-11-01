@@ -1,6 +1,4 @@
-require('../scss/video.scss');
-require('../scss/font.scss');
-
+require("../scss/video.scss")
 function WSVideoPlayer(options) {
   var defaultOptions = {
     poster: '',
@@ -12,11 +10,11 @@ function WSVideoPlayer(options) {
   }
   if (!options.src) {
     throw new Error('must set the video source');
-    return;
+    return false;
   }
   if (!options.container || (typeof options.container !== 'string')) {
     throw new Error('container must be set and only be string!');
-    return;
+    return false;
   }
   this.options = $.extend({}, defaultOptions, options);
   this.video = null;
@@ -41,21 +39,6 @@ function formatTime(timestamp) {
   return `${mins}:${secs}`;
 }
 
-function setScrollStickToTopEvent() {
-  let self = this;
-  $(window).on('scroll', function (e) {
-    let containerOffset = self.container.offset();
-    let scrollTop = $(document).scrollTop();
-    if (scrollTop > containerOffset.top) {
-      if (self.isPlaying) {
-        $('.ws-video').removeClass('ws-video-stick-top');
-        self.videoConElem.addClass('ws-video-stick-top');
-      }
-    } else {
-      self.videoConElem.removeClass('ws-video-stick-top');
-    }
-  });
-}
 
 function getEventPageX(evt) {
   let pageX;
@@ -106,32 +89,37 @@ WSVideoPlayer.prototype.init = function () {
 WSVideoPlayer.prototype.generateTemplate = function () {
   let template = `
       <div class="ws-video">
-          <div class="ws-video-player">
-              <video poster="${this.options.poster}">
-                  <source src="${this.options.src}" type="video/mp4"></source>
-              </video>
+          <div class="ws-video-top">
+            <div class="ws-video-player">
+                <video poster="${this.options.poster}">
+                    <source src="${this.options.src}" type="video/mp4"></source>
+                </video>
+            </div>
+            <div class="ws-video-controls">
+                <div class="ws-video-controls-body">
+                    <div class="ws-video-play-pause">
+                        <button class="ws-video-play">
+                          <i class="iconfont">&#xe60a;</i>
+                        </button>
+                        <button class="ws-video-pause">
+                          <i class="iconfont">&#xe60b;</i>
+                        </button>
+                    </div>
+                    <span class="ws-video-currenttime">00:00</span>
+                    <div class="ws-video-progress">
+                        <div class="ws-video-progress-slider"></div>
+                        <div class="ws-video-progress-bar"></div>
+                        <div class="ws-video-progress-active-bar"></div>
+                    </div>
+                    <span class="ws-video-fulltime">00:00</span>
+                    <button class="ws-video-fullscreen">
+                      <i class="iconfont">&#xe608;</i>
+                    </button>
+                </div>
+            </div>
           </div>
-          <div class="ws-video-controls">
-              <div class="ws-video-controls-body">
-                  <div class="ws-video-play-pause">
-                      <button class="ws-video-play">
-                        <i class="iconfont">&#xe624;</i>
-                      </button>
-                      <button class="ws-video-pause">
-                        <i class="iconfont">&#xe625;</i>
-                      </button>
-                  </div>
-                  <span class="ws-video-currenttime">00:00</span>
-                  <div class="ws-video-progress">
-                      <div class="ws-video-progress-slider"></div>
-                      <div class="ws-video-progress-bar"></div>
-                      <div class="ws-video-progress-active-bar"></div>
-                  </div>
-                  <span class="ws-video-fulltime">00:00</span>
-                  <button class="ws-video-fullscreen">
-                    <i class="iconfont">&#xe600;</i>
-                  </button>
-              </div>
+          <div class="ws-video-title">
+            <span class="video-title-text">${this.options.title}</span>
           </div>
       </div>`;
   this.container.append(template);
@@ -140,6 +128,7 @@ WSVideoPlayer.prototype.generateTemplate = function () {
   let width = this.container.width();
   this.video.width = width;
   this.videoConElem = this.container.find('.ws-video');
+  this.videoTopElem = this.container.find('.ws-video-top');
   this.playAndPauseElem = this.container.find('.ws-video-play-pause');
   this.playElem = this.container.find('.ws-video-play');
   this.pauseElem = this.container.find('.ws-video-pause');
@@ -165,6 +154,8 @@ WSVideoPlayer.prototype.attachEvents = function () {
       width: self.video.videoWidth,
       height: self.video.videoHeight
     };
+    // cache the original dimensions,
+    self.videoDimensions = dimensions;
     self.styleVideoPlayer(dimensions);
     self.setDuration(self.video.duration);
   }, false);
@@ -191,7 +182,7 @@ WSVideoPlayer.prototype.attachEvents = function () {
 
   }, false);
 
-  this.video.addEventListener('ended', function() {
+  this.video.addEventListener('ended', function () {
     self.isPlaying = false;
     self.playAndPauseElem.removeClass('is-playing');
   }, false);
@@ -206,11 +197,11 @@ WSVideoPlayer.prototype.attachEvents = function () {
   }
 
   if (isTouchEventSupported) {
-    this.playElem[0].addEventListener('touchstart', function(e) {
+    this.playElem[0].addEventListener('touchstart', function (e) {
       pauseEvent(e);
       self.play();
     }, false);
-    this.pauseElem[0].addEventListener('touchstart', function(e) {
+    this.pauseElem[0].addEventListener('touchstart', function (e) {
       pauseEvent(e);
       self.pause();
     }, false);
@@ -280,11 +271,11 @@ WSVideoPlayer.prototype.attachEvents = function () {
 
   //add touch events if touch supported
   if (isTouchEventSupported) {
-    this.progressbarSlider[0].addEventListener('touchstart', function(evt) {
+    this.progressbarSlider[0].addEventListener('touchstart', function (evt) {
       evt.preventDefault();
       document.addEventListener('touchmove', slideMoveHandler, false);
     });
-    document.addEventListener('touchend', function(evt) {
+    document.addEventListener('touchend', function (evt) {
       evt.preventDefault();
       document.removeEventListener('touchmove', slideMoveHandler, false);
     }, false);
@@ -292,20 +283,22 @@ WSVideoPlayer.prototype.attachEvents = function () {
     this.progressbarSlider.on('mousedown', function (evt) {
       document.addEventListener('mousemove', slideMoveHandler, false);
     });
-    document.addEventListener('mouseup', function() {
+    document.addEventListener('mouseup', function () {
       document.removeEventListener('mousemove', slideMoveHandler, false);
     }, false);
   }
-
 }
 
-WSVideoPlayer.prototype.styleVideoPlayer = function (dimensions) {
+WSVideoPlayer.prototype.styleVideoPlayer = function (dimensions, isRestyle=false) {
   let width = this.container.width();
+  if (isRestyle) {
+    width = this.videoConElem.width();
+  }
   let height = dimensions.height * (width / dimensions.width);
   this.video.width = width;
-  this.video.height = height;
-  this.videoConElem.css('height', height + 'px');
-  this.videoConElem.css('width', width + 'px');
+  this.video.height = Math.floor(height + 1);//+1 for fix gutter around the video tag
+  this.videoTopElem.css('height', height + 'px');
+  this.videoTopElem.css('width', width + 'px');
 }
 
 WSVideoPlayer.prototype.play = function () {
@@ -314,8 +307,51 @@ WSVideoPlayer.prototype.play = function () {
   this.video.play();
 }
 
+WSVideoPlayer.prototype.restyleVideo = function() {
+  this.styleVideoPlayer(this.videoDimensions, true);
+}
+
 WSVideoPlayer.prototype.setStickTopWhenScroll = function () {
-  setScrollStickToTopEvent.call(this);
+  const self = this;
+  if (checkTouchEventSupported()) {
+    document.addEventListener('touchmove', function (e) {
+      let containerOffset = self.container.offset();
+      let scrollTop = $(document).scrollTop();
+      if (scrollTop > containerOffset.top) {
+        if (self.isPlaying) {
+          if (!self.videoConElem.hasClass('ws-video-stick-top')) {
+            $('.ws-video').removeClass('ws-video-stick-top');
+            self.videoConElem.addClass('ws-video-stick-top');
+            self.restyleVideo();
+          }
+        }
+      } else {
+        if (self.videoConElem.hasClass('ws-video-stick-top')) {
+          self.videoConElem.removeClass('ws-video-stick-top');
+          self.restyleVideo();
+        }
+      }
+    }, false);
+  } else {
+    $(window).on('scroll', function (e) {
+      let containerOffset = self.container.offset();
+      let scrollTop = $(document).scrollTop();
+      if (scrollTop > containerOffset.top) {
+        if (self.isPlaying) {
+          if (!self.videoConElem.hasClass('ws-video-stick-top')) {
+            $('.ws-video').removeClass('ws-video-stick-top');
+            self.videoConElem.addClass('ws-video-stick-top');
+            self.restyleVideo();
+          }
+        }
+      } else {
+        if (self.videoConElem.hasClass('ws-video-stick-top')) {
+          self.videoConElem.removeClass('ws-video-stick-top');
+          self.restyleVideo();
+        }
+      }
+    });
+  }
 }
 
 WSVideoPlayer.prototype.pause = function () {
