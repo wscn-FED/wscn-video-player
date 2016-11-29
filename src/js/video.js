@@ -1,4 +1,4 @@
-require("../scss/video.scss")
+require('../scss/video.scss')
 function WSVideoPlayer(options) {
   var defaultOptions = {
     poster: '',
@@ -98,12 +98,12 @@ WSVideoPlayer.prototype.generateTemplate = function () {
             <div class="ws-video-controls">
                 <div class="ws-video-controls-body">
                     <div class="ws-video-play-pause">
-                        <button class="ws-video-play">
+                        <div class="ws-video-play">
                           <i class="iconfont">&#xe60a;</i>
-                        </button>
-                        <button class="ws-video-pause">
+                        </div>
+                        <div class="ws-video-pause">
                           <i class="iconfont">&#xe60b;</i>
-                        </button>
+                        </div>
                     </div>
                     <span class="ws-video-currenttime">00:00</span>
                     <div class="ws-video-progress">
@@ -236,17 +236,17 @@ WSVideoPlayer.prototype.attachEvents = function () {
 
   }
 
-  this.videoConElem.on('mouseleave', function (e) {
-    if (self.options.controlDispearTime > 0) {
-      setTimeout(function () {
-        self.videoControlsElem.addClass('hide');
-      }, self.options.controlDispearTime)
-    }
-  });
+  // this.videoConElem.on('mouseleave', function (e) {
+  //   if (self.options.controlDispearTime > 0) {
+  //     setTimeout(function () {
+  //       self.videoControlsElem.addClass('hide');
+  //     }, self.options.controlDispearTime)
+  //   }
+  // });
 
-  this.videoConElem.on('mouseover', function (e) {
-    self.videoControlsElem.removeClass('hide');
-  });
+  // this.videoConElem.on('mouseover', function (e) {
+  //   self.videoControlsElem.removeClass('hide');
+  // });
 
   //handle progress slider actions
   const slideMoveHandler = function (evt) {

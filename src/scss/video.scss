@@ -1,3 +1,4 @@
+@import 'font.scss';
 .ws-video {
   overflow: hidden;
 }
@@ -46,6 +47,7 @@
 .ws-video-play-pause {
   flex-grow: 0;
   flex-shrink: 0;
+  text-align: center;
 }
 .ws-video-play-pause.is-playing {
   .ws-video-play {
@@ -56,9 +58,9 @@
   }
 }
 .ws-video-play, .ws-video-pause, .ws-video-fullscreen {
+  display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   width: 30px;
   height: 30px;
   color: #fff;
@@ -67,6 +69,7 @@
   padding: 0;
   outline: none;
   background-color: transparent;
+  cursor: pointer;
 }
 .ws-video-play {
   i {
@@ -102,8 +105,8 @@
   position: absolute;
   left: 0;
   top: 7px;
-  height: 2px;
-  background-color: #ffffff;
+  height: 1px;
+  background-color: #d2d2d2;
   z-index: 2100;
   cursor: pointer;
 }
@@ -111,14 +114,14 @@
   position: absolute;
   left: 0;
   top: 6px;
-  height: 4px;
+  height: 3px;
   background-color: #0078EB;
   z-index: 2200;
   cursor: pointer;
 }
 .ws-video-progress-slider {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   top: 0;
   border-radius: 50%;
   background-color: #ffffff;
