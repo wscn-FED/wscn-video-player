@@ -1,4 +1,3 @@
-require('../scss/video.scss')
 function WSVideoPlayer(options) {
   var defaultOptions = {
     poster: '',
@@ -6,7 +5,11 @@ function WSVideoPlayer(options) {
     container: '',
     autoPlay: false,
     loop: false,
-    volumeValue: 5
+    volumeValue: 5,
+    pay: {
+      isPaid: false,
+      payUrl: ''
+    }
   }
   if (!options.src) {
     throw new Error('must set the video source');
@@ -17,20 +20,18 @@ function WSVideoPlayer(options) {
     return false;
   }
   this.options = $.extend({}, defaultOptions, options);
-  this.video = null;
-  this.container = $('#' + options.container);
-  this.isPlaying = false;
+  this.video = null
+  this.container = $('#' + options.container)
+  this.isPlaying = false
   this.init();
 }
 function checkTouchEventSupported() {
   return ('ontouchstart' in window) || window.DocumentTouch && (document instanceof DocumentTouch);
 }
-
 function pauseEvent(e) {
   e.preventDefault();
   e.stopPropagation();
 }
-
 function formatTime(timestamp) {
   let secs = parseInt(timestamp % 60);
   let mins = parseInt((timestamp / 60) % 60);
@@ -38,8 +39,6 @@ function formatTime(timestamp) {
   mins = (`0${mins}`).slice(-2);
   return `${mins}:${secs}`;
 }
-
-
 function getEventPageX(evt) {
   let pageX;
   if (/^touch/ig.test(evt.type)) {
@@ -55,7 +54,6 @@ function getEventPageX(evt) {
   }
   return pageX;
 }
-
 function launchFullScreen(elem) {
   if (!elem.fullscreenElement && // alternative standard method
     !elem.mozFullScreenElement && !elem.webkitFullscreenElement && !elem.msFullscreenElement) {
@@ -63,14 +61,12 @@ function launchFullScreen(elem) {
     requestFullScreen.call(elem);
   }
 }
-
 WSVideoPlayer.prototype.init = function () {
   // init templates
   // set video dom element
   //attach all events
   this.generateTemplate();
   this.attachEvents();
-
   if (this.options.autoPlay) {
     this.video.autoplay = true;
     this.isPlaying = true;
@@ -79,22 +75,19 @@ WSVideoPlayer.prototype.init = function () {
   if (this.options.loop) {
     this.video.loop = true;
   }
-
   if (this.options.stickToTopWhenScroll) {
     this.setStickTopWhenScroll();
   }
-
 }
 
 WSVideoPlayer.prototype.generateTemplate = function () {
-  let template = `
+  const mediaTpl = `<div class="ws-video-player">
+                <video poster="${this.options.poster}" src="${this.options.src}"></video>
+            </div>`
+  const template = `
       <div class="ws-video">
           <div class="ws-video-top">
-            <div class="ws-video-player">
-                <video poster="${this.options.poster}">
-                    <source src="${this.options.src}" type="video/mp4"></source>
-                </video>
-            </div>
+            ${mediaTpl}
             <div class="ws-video-controls">
                 <div class="ws-video-controls-body">
                     <div class="ws-video-play-pause">
@@ -150,7 +143,7 @@ WSVideoPlayer.prototype.attachEvents = function () {
   }, false);
   this.video.addEventListener('loadedmetadata', function (e) {
     console.log('loaded meta data...')
-    let dimensions = {
+    const dimensions = {
       width: self.video.videoWidth,
       height: self.video.videoHeight
     };
@@ -158,6 +151,9 @@ WSVideoPlayer.prototype.attachEvents = function () {
     self.videoDimensions = dimensions;
     self.styleVideoPlayer(dimensions);
     self.setDuration(self.video.duration);
+    //check pay status
+    self.checkPayStatus()
+
   }, false);
 
   this.video.addEventListener('durationchange', function () {
@@ -167,7 +163,12 @@ WSVideoPlayer.prototype.attachEvents = function () {
   this.video.addEventListener('loadeddata', function () {
     console.log('loaded data');
   }, false);
-
+  this.video.addEventListener('play', function(e) {
+    if (!self.options.pay.isPaid) {
+      location.href = self.options.pay.payUrl
+      return
+    }
+  })
   this.video.addEventListener('timeupdate', function (e) {
     //update currentTime
     let currentTime = self.video.currentTime;
@@ -195,7 +196,6 @@ WSVideoPlayer.prototype.attachEvents = function () {
     let diffWidth = (pageX - offset.left);
     self.video.currentTime = (diffWidth / width) * self.video.duration;
   }
-
   if (isTouchEventSupported) {
     this.playElem[0].addEventListener('touchstart', function (e) {
       pauseEvent(e);
@@ -205,11 +205,9 @@ WSVideoPlayer.prototype.attachEvents = function () {
       pauseEvent(e);
       self.pause();
     }, false);
-
     this.activeProgressbar[0].addEventListener('touchstart', handleProgressClickJump, false);
     this.progressBar[0].addEventListener('touchstart', handleProgressClickJump, false);
     this.progressbarSlider[0].addEventListener('touchstart', handleProgressClickJump, false);
-
     this.fullScreenElem[0].addEventListener('touchstart', function (e) {
       pauseEvent(e);
       launchFullScreen(self.video)
@@ -235,18 +233,6 @@ WSVideoPlayer.prototype.attachEvents = function () {
     });
 
   }
-
-  // this.videoConElem.on('mouseleave', function (e) {
-  //   if (self.options.controlDispearTime > 0) {
-  //     setTimeout(function () {
-  //       self.videoControlsElem.addClass('hide');
-  //     }, self.options.controlDispearTime)
-  //   }
-  // });
-
-  // this.videoConElem.on('mouseover', function (e) {
-  //   self.videoControlsElem.removeClass('hide');
-  // });
 
   //handle progress slider actions
   const slideMoveHandler = function (evt) {
@@ -290,21 +276,22 @@ WSVideoPlayer.prototype.attachEvents = function () {
 }
 
 WSVideoPlayer.prototype.styleVideoPlayer = function (dimensions, isRestyle=false) {
+  // according to 16:9 ratio
   let width = this.container.width();
   if (isRestyle) {
     width = this.videoConElem.width();
   }
-  let height = dimensions.height * (width / dimensions.width);
+  let height = 9 * width / 16
   this.video.width = width;
   this.video.height = Math.floor(height + 1);//+1 for fix gutter around the video tag
   this.videoTopElem.css('height', height + 'px');
   this.videoTopElem.css('width', width + 'px');
 }
 
-WSVideoPlayer.prototype.play = function () {
-  this.isPlaying = true;
-  this.playAndPauseElem.addClass('is-playing');
-  this.video.play();
+WSVideoPlayer.prototype.checkPayStatus = function() {
+  if (!this.options.pay.isPaid) {
+    this.videoElem.removeAttr('src')
+  }
 }
 
 WSVideoPlayer.prototype.restyleVideo = function() {
@@ -353,7 +340,16 @@ WSVideoPlayer.prototype.setStickTopWhenScroll = function () {
     });
   }
 }
-
+WSVideoPlayer.prototype.play = function () {
+  if (!this.options.pay.isPaid) {
+    location.href = this.options.pay.payUrl
+    return 
+  } else {
+    this.isPlaying = true;
+    this.playAndPauseElem.addClass('is-playing');
+    this.video.play();
+  }
+}
 WSVideoPlayer.prototype.pause = function () {
   this.isPlaying = false;
   this.playAndPauseElem.removeClass('is-playing');

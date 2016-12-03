@@ -45,8 +45,8 @@
   align-items: center;
 }
 .ws-video-play-pause {
-  flex-grow: 0;
-  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
   text-align: center;
 }
 .ws-video-play-pause.is-playing {
