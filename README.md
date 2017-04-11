@@ -24,6 +24,11 @@
 </script>
 ```
 
+## Screen Shot
+
+![shot](./screen/shot.png)
+
+
 ## About options
 
 ## Dev
