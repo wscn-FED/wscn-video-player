@@ -1,84 +1,73 @@
-var webpack = require('webpack');
-var autoprefixer = require('autoprefixer');
-var inlineSvg = require('postcss-inline-svg');
-var svgo = require('postcss-svgo');
-var path = require('path');
-var OpenBrowserPlugin = require('open-browser-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const { resolve } = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-var isProduction = process.argv.indexOf('--production') !== -1;
-var config = {
-    devServer: {
-        historyApiFallback: true,
-        hot: true,
-        inline: true,
-        progress: true,
-        port: 9000,
-        contentBase: './'
-    },
-    entry: [
-        'webpack/hot/dev-server',
-        'webpack-dev-server/client?http://localhost:9000',
-        './src/js/video.js'
-    ],
+module.exports = function(env = {}) {
+  console.log('****************')
+  console.log('env config: ', env)
+  console.log('****************')
+  return {
+    entry: './src/index',
     output: {
-        path: path.join(__dirname, 'dist'),
-        filename: 'ws-video-player.js',
-        library: 'WSVideoPlayer',
-        libraryTarget: 'umd'
-    },
-    externals: {
-        "jquery": {
-            root: '$',
-            commonjs2: 'jquery',
-            commonjs: 'jquery',
-            amd: 'jquery'
-        }
+      path: resolve(__dirname, 'dist'),
+      filename: 'wscn-video.js',
+      publicPath: '/'
     },
     module: {
-        loaders: [{
-            test: /\.scss/,
-            loader: 'style!css!postcss!sass'
-        }, {
-            test: /\.js/,
-            loader: 'babel',
-            include: /src/,
-            exclude: /node_modules/
-        }, {
-            test: /\.(eot|svg|ttf|woff|woff2)$/,
-            loader: 'url?limit=50000'
-        }]
-    },
-    sassLoader: {
-        sourceMap: true
-    },
-    postcss: [
-        inlineSvg(),
-        svgo(),
-        autoprefixer({
-            browsers: ['last 3 versions']
-        })
-    ],
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: __dirname + '/index.html'
-        }),
-        new OpenBrowserPlugin({
-            url: 'http://localhost:9000'
-        })
-    ]
-}
-
-if (isProduction) {
-    config.entry = './src/js/video.js';
-    config.output.filename = 'ws-video-player.min.js';
-    config.plugins = [
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: ['babel-loader']
+        },
+        {
+          test: /\.html$/,
+          use: [
+            {
+              loader: 'html-loader',
+              options: {
+                root: resolve(__dirname, 'src'),
+                attr: ['img:src', 'link:href']
+              }
             }
-        })
-    ]
-}
+          ]
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader']
+        },
 
-module.exports = config;
+        {
+          test: /\.scss$/,
+          use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader']
+        },
+        {
+          test: /\.(png|jpg|jpeg|gif|eot|ttf|woff|woff2|svg|svgz)(\?.+)?$/,
+          exclude: /favicon\.png$/,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 10000
+              }
+            }
+          ]
+        }
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './index.html'
+      }),
+      new webpack.NamedModulesPlugin()
+    ],
+    resolve: {
+      alias: {
+        '~': resolve(__dirname, 'src')
+      }
+    },
+    devServer: {
+      port: 9000
+    }
+  }
+}
