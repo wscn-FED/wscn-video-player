@@ -7,10 +7,7 @@
 ```html
 <div id="video-player"></div>
 
-
-
-<script src="jquery.min.js"></script>
-<script src="./dist/ws-video-player.min.js></script>
+<script src="./dist/ws-video.js></script>
 <script type="text/javascript">
   window.onload = function() {
     var container = document.querySelector('#video-player')
