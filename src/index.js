@@ -10,17 +10,19 @@ class WSVideoPlayer {
     this.sliderMoving = false
     this.isFullScreen = false
     this.isPlaying = false
+    this.loadTimer = null
     this.handleLoadedMetaData = this.handleLoadedMetaData.bind(this)
     this.handleTimeUpdate = this.handleTimeUpdate.bind(this)
     this.handleEned = this.handleEned.bind(this)
     this.handleSliderDown = this.handleSliderDown.bind(this)
     this.handleWaiting = this.handleWaiting.bind(this)
-    this.handleCanplay = this.handleCanplay.bind(this)
+    this.handlePlaying = this.handlePlaying.bind(this)
     this.handlePlay = this.handlePlay.bind(this)
     this.handlePause = this.handlePause.bind(this)
     this.handleToggleFullScreen = this.handleToggleFullScreen.bind(this)
     this.handleSliderMove = this.handleSliderMove.bind(this)
     this.handleSliderUp = this.handleSliderUp.bind(this)
+    this.seekTo = this.seekTo.bind(this)
     this.setTemplate()
     this.attachEvents()
   }
@@ -96,11 +98,13 @@ class WSVideoPlayer {
     this.video.addEventListener('loadedmetadata', this.handleLoadedMetaData, false)
     this.video.addEventListener('timeupdate', this.handleTimeUpdate, false)
     this.video.addEventListener('waiting', this.handleWaiting, false)
-    this.video.addEventListener('canplay', this.handleCanplay, false)
+    this.video.addEventListener('playing', this.handlePlaying, false)
     this.video.addEventListener('ended', this.handleEned, false)
     this.playBtn.addEventListener('click', this.handlePlay, false)
     this.pauseBtn.addEventListener('click', this.handlePause, false)
     this.fullscreenBtn.addEventListener('click', this.handleToggleFullScreen, false)
+    this.progress.addEventListener('click', this.seekTo, false)
+    this.progressActive.addEventListener('click', this.seekTo, false)
     if (isTouchSupported()) {
       this.slider.addEventListener('touchstart', this.handleSliderDown, false)
     } else {
@@ -115,20 +119,20 @@ class WSVideoPlayer {
     if (!this.sliderMoving) {
       this.currentTime.textContent = formatTime(this.video.currentTime)
       const rect = this.progress.getBoundingClientRect()
-      let aw = parseFloat(this.video.currentTime / this.video.duration) * rect.width
-      if (aw > rect.width) {
-        aw = rect.width
+      let aw = parseFloat(this.video.currentTime / this.video.duration) * (rect.width - 16)
+      if (aw > (rect.width - 16)) {
+        aw = rect.width - 16
       }
       this.progressActive.style.width = aw + 'px'
-      this.slider.style.left = (aw - 7) + 'px'
+      this.slider.style.left = aw + 'px'
     }
   }
   handleWaiting() {
     this.loadTimer = setTimeout(() => {
       this.loader.classList.add('show')
-    }, 800)
+    }, 300)
   }
-  handleCanplay() {
+  handlePlaying() {
     if (this.loadTimer) clearTimeout(this.loadTimer)
     this.loader.classList.remove('show')
   }
@@ -209,12 +213,26 @@ class WSVideoPlayer {
     if (offset < 0) {
       offset = 0
     }
-    if (offset > rect.width) {
-      offset = rect.width
+    if (offset > (rect.width - 16)) {
+      offset = rect.width - 16
     }
     this.progressActive.style.width = offset + 'px'
-    this.slider.style.left = (offset - 7) + 'px'
-    this.goToCurrentTime = parseFloat((parseFloat(offset / rect.width) * this.video.duration).toFixed(6))
+    this.slider.style.left = offset + 'px'
+    this.goToCurrentTime = parseFloat((parseFloat(offset / (rect.width - 16)) * this.video.duration).toFixed(6))
+    this.currentTime.textContent = formatTime(this.goToCurrentTime)
+  }
+  seekTo(e) {
+    const rect = this.progress.getBoundingClientRect()
+    let offset = e.pageX  - rect.left
+    if (offset <= 0) {
+      offset = 0
+    }
+    if (offset >= (rect.width -16)) {
+      offset = rect.width -16
+    }
+    this.progressActive.style.width = offset + 'px'
+    this.slider.style.left = offset + 'px'
+    this.video.currentTime = parseFloat(offset / (rect.width - 16)) * this.video.duration
   }
 }
 window.WSVideoPlayer = WSVideoPlayer
