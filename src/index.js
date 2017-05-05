@@ -1,4 +1,4 @@
-import { formatTime, isTouchSupported } from './utils'
+import { formatTime, isTouchSupported, fetchSource } from './utils'
 import './index.scss'
 const defaultOptions = {
 }
@@ -27,11 +27,11 @@ class WSVideoPlayer {
     this.attachEvents()
   }
   setTemplate() {
-    const { width, poster, src } = this.options
+    const { width, poster } = this.options
     const tpl = `<div class="ryvideo">
       <div class="ryvideo-body">
         <div class="ryvideo-container" style="width: ${width}px; background-image: url('${poster}')">
-          <video src="${src}" preload="auto" playsinline webkit-playsinline></video>
+          <video preload="auto" playsinline webkit-playsinline></video>
           <div class="ryvideo-controls">
             <div class="ryvideo-controls-inner">
               <div class="ryvideo-controls-play-pause">
@@ -95,6 +95,7 @@ class WSVideoPlayer {
     this.loader = this.container.querySelector('.ryvideo-loader')
   }
   attachEvents() {
+    this.setVideoSource()
     this.video.addEventListener('loadedmetadata', this.handleLoadedMetaData, false)
     this.video.addEventListener('timeupdate', this.handleTimeUpdate, false)
     this.video.addEventListener('waiting', this.handleWaiting, false)
@@ -109,6 +110,29 @@ class WSVideoPlayer {
       this.slider.addEventListener('touchstart', this.handleSliderDown, false)
     } else {
       this.slider.addEventListener('mousedown', this.handleSliderDown, false)
+    }
+  }
+  setVideoSource() {
+    const { src } = this.options
+    const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
+    if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
+      const ms = new MediaSource()
+      this.video.src = URL.createObjectURL(ms)
+      ms.addEventListener('sourceopen', function() {
+        const ms = this
+        const sourceBuffer = ms.addSourceBuffer(mimeCodec)
+        fetchSource(src).then(res => {
+          sourceBuffer.addEventListener('updateend', () => {
+            ms.endOfStream()
+            this.video.play()
+          })
+          console.log(res)
+          sourceBuffer.appendBuffer(res.data)
+        })
+      })
+    } else {
+      console.log('Unsupport MediaSource Or Codec')
+      this.video.src = src
     }
   }
   handleLoadedMetaData() {

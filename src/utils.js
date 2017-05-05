@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 function formatTime(num) {
   const temp = parseFloat(num)
   let secs = parseInt(temp % 60)
@@ -14,4 +16,8 @@ function isTouchSupported() {
   return false
 }
 
-export { formatTime, isTouchSupported }
+function fetchSource(src) {
+  return axios.get(src, { responseType: 'arraybuffer' }).then(res => res.data)
+}
+
+export { formatTime, isTouchSupported, fetchSource }
